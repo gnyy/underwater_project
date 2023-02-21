@@ -558,7 +558,8 @@ def Thread_process_voise(in_data):
         frameTime =FrameTimeC(fn, wlen, inc, fs)
         for m in range(vsl):
             max=-999
-            if (voiceseg[m]['end']-voiceseg[m]['start']>25):
+            dis=voiceseg[m]['end']-voiceseg[m]['start']
+            if (dis>25):
                 data_seg_1 = data[ (int)(frameTime[voiceseg[m]['start']] * fs) : (int)(frameTime[voiceseg[m]['end']] *fs) ]
                 #计算mfcc矩阵
                 mfcc = librosa.feature.mfcc(y=data_seg_1, sr=fs)
@@ -576,7 +577,8 @@ def Thread_process_voise(in_data):
                     #获取网络给出的类型返回
                     x=net(mfcc).detach().numpy()[0]
                     if(vsl-m<5):
-                        print(m,x)
+
+                        print(m,x,"持续时间：",dis)
                     #获取可信度最大的值和其对应的下标
                     for i in range (5):
                         if x[i]>max:
@@ -590,11 +592,18 @@ def Thread_process_voise(in_data):
                         Voise_Sequence_index=m
                         #热身结束，向树莓派发送数据
                         if(Voise_Sequence_index>2):
-                            pool.submit(send_message,   Voise_Class[index])
+                            pool.submit(send_message,Voise_Class[index],dis)
     except(IndexError):
         xxxxx=0
     
-def send_message(msg):
+def send_message(msg,dis):
+    
+    
+    if(dis<50):
+        msg_tail=',S'
+    else:
+        msg_tail=',L'
+    msg=msg+msg_tail
     try:
         client_socket.send(msg.encode('utf-8'))
         print("发送成功；")
@@ -644,7 +653,8 @@ def Check_Voise_Sequence():
             #打印信息
             #print(Voise_Sequence[0:Voise_Sequence_index-1])
             #更新txt
-            path="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/wav/Voise_Sequence/Voise_Sequence.csv"
+            ##TODO 修改路径
+            path="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/wav/Voise_Sequence/Voise_Sequence.csv"
             file=open(path,'w',newline='')
             csv_writer=csv.writer(file,dialect="excel")
             csv_writer.writerow(['class','confidence'])
@@ -666,7 +676,8 @@ def send_zero():
         if(End_Flag==1):
             break
         try:
-            client_socket.send(msg.encode('utf-8'))
+            #client_socket.send(msg.encode('utf-8'))
+            x=0
         except :                           ##连接不成功，运行最初的ip
             print ('发送失败')
             mySocket.send(msg.encode("utf-8"))
@@ -692,8 +703,10 @@ mySocket.bind((host,port))
 mySocket.listen(10)
 print("start")
 client_socket, clientAddr = mySocket.accept()
-rnnPath='C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/rnn2.pth'
-recorsPath="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/wav/ALL/1.wav"
+
+#TODO 修改路径
+rnnPath='C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/rnn2.pth'
+recorsPath="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/wav/ALL/1.wav"
 
 
 
@@ -723,7 +736,8 @@ dataList=[]
 
 ##数据转换用，主要用于将数据转换至tensor
 transform=transforms.ToTensor()
-rnnPath='C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/rnn2.pth'
+#TODO 修改路径
+rnnPath='C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/rnn2.pth'
 ##网络初始化
 net = torch.load(rnnPath)
 
@@ -776,7 +790,8 @@ while time.time() - t1 < 120:
 
 End_Flag=1
 
-recorsPath="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/wav/ALL/1.wav"
+#TODO 修改路径
+recorsPath="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/wav/ALL/1.wav"
 #写文件
 wav_data = b"".join(dataList)
 with wave.open(recorsPath, "wb") as wf:
@@ -816,10 +831,12 @@ client_socket.close()
 
 
 # #######
-# path="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/wav/ALL/2.wav"
+#TODO 修改路径
+# path="C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/wav/ALL/2.wav"
 # data,fs,n_bits,AU=get_wav_time_data(path)
 # transform=transforms.ToTensor()
-# net = torch.load('C:/Users/gnyy/Desktop/Underwater_Superlimb-master/python/script/rnn2.pth')
+#TODO 修改路径
+# net = torch.load('C:/Users/gnyy/Desktop/Underwater_Superlimb-master/underwater_project/python/script/rnn2.pth')
 
 
 # IS = 0.25
