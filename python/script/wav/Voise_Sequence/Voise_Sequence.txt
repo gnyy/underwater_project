@@ -1,0 +1,13 @@
+fa confidence:5.943452
+fa confidence:5.943452
+fa confidence:5.943452
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
+re confidence:6.676058
